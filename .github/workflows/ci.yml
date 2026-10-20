@@ -48,4 +48,9 @@ jobs:
           kubectl apply --server-side --force-conflicts -f /tmp/medscribe-cm.json
           kubectl -n medscribe-saas rollout restart deploy/web
           kubectl -n medscribe-saas rollout status deploy/web --timeout=120s
-          curl -fsS --max-time 10 http://ubuntu03:30095/ >/dev/null
+          ok=0
+          for _ in $(seq 1 10); do
+            if curl -fsS --max-time 5 https://handclinic.co.il/ >/dev/null; then ok=1; break; fi
+            sleep 2
+          done
+          test "$ok" = 1
