@@ -27,12 +27,13 @@ jobs:
     name: Deploy to Kubernetes Cluster
     needs: validate
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    runs-on: [self-hosted, linux]
+    runs-on: [self-hosted, linux, medscribe-saas]
     steps:
       - uses: actions/checkout@v4
       - name: Apply ConfigMap & Rollout on Kubernetes
         run: |
           export PATH="$HOME/.local/bin:$PATH"
+          export KUBECONFIG="$HOME/.kube/medscribe-deployer"
           python3 - <<'PY' > /tmp/medscribe-cm.json
           import base64, gzip, json, pathlib
           files = sorted(pathlib.Path("site").glob("*.html"))
@@ -44,7 +45,6 @@ jobs:
               "binaryData": body
           }, ensure_ascii=False))
           PY
-          kubectl apply -f deploy/k8s.yaml
           kubectl apply --server-side --force-conflicts -f /tmp/medscribe-cm.json
           kubectl -n medscribe-saas rollout restart deploy/web
           kubectl -n medscribe-saas rollout status deploy/web --timeout=120s
