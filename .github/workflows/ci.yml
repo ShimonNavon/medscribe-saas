@@ -1,0 +1,51 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    name: Validate HTML & Manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check HTML & shell scripts
+        run: |
+          test -s site/index.html
+          test -s site/voice-agent.html
+          test -s site/deploy-backup.html
+          bash -n deploy/deploy.sh
+
+  deploy:
+    name: Deploy to Kubernetes Cluster
+    needs: validate
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: [self-hosted, linux]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply ConfigMap & Rollout on Kubernetes
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          python3 - <<'PY' > /tmp/medscribe-cm.json
+          import base64, gzip, json, pathlib
+          files = sorted(pathlib.Path("site").glob("*.html"))
+          body = {f.name + ".gz": base64.b64encode(gzip.compress(f.read_bytes(), compresslevel=9)).decode() for f in files}
+          print(json.dumps({
+              "apiVersion": "v1",
+              "kind": "ConfigMap",
+              "metadata": {"name": "site-gz", "namespace": "medscribe-saas"},
+              "binaryData": body
+          }, ensure_ascii=False))
+          PY
+          kubectl apply -f deploy/k8s.yaml
+          kubectl apply --server-side --force-conflicts -f /tmp/medscribe-cm.json
+          kubectl -n medscribe-saas rollout restart deploy/web
+          kubectl -n medscribe-saas rollout status deploy/web --timeout=120s
+          curl -fsS --max-time 10 http://ubuntu03:30095/ >/dev/null

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HandClinic AI · מקליט ביקורים — Voice Agent SaaS for Medical Clinics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050912;
+    --panel: #0c1424;
+    --panel-2: #111c32;
+    --border: #1e2d4a;
+    --ink: #f1f5f9;
+    --muted: #94a3b8;
+    --cyan: #22d3ee;
+    --emerald: #34d399;
+    --violet: #a78bfa;
+    --amber: #fbbf24;
+    --rose: #fb7185;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', 'Heebo', sans-serif;
+    line-height: 1.6;
+    background-image:
+      radial-gradient(circle at 12% 10%, rgba(34,211,238,0.08), transparent 32%),
+      radial-gradient(circle at 88% 30%, rgba(52,211,153,0.07), transparent 32%);
+  }
+  .shell { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .rtl { direction: rtl; font-family: 'Heebo', sans-serif; }
+
+  /* Nav */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(5,9,18,0.86);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-row {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px; gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; text-decoration: none; color: var(--ink); }
+  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 12px var(--emerald); }
+  .nav-links { display: flex; gap: 22px; align-items: center; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500; }
+  .nav-links a:hover { color: var(--ink); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px; border-radius: 9px; font-size: 13px; font-weight: 600;
+    text-decoration: none; cursor: pointer; border: 1px solid transparent; transition: 0.18s;
+  }
+  .btn-primary { background: var(--cyan); color: #020617; }
+  .btn-primary:hover { background: #67e8f9; }
+  .btn-ghost { background: rgba(30,45,74,0.45); color: var(--ink); border-color: var(--border); }
+  .btn-ghost:hover { border-color: var(--cyan); }
+
+  /* Hero */
+  .hero { padding: 56px 0 36px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 999px; font-size: 11px;
+    background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.3); color: var(--cyan);
+    margin-bottom: 16px;
+  }
+  h1 { font-size: clamp(32px, 4.6vw, 52px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.12; max-width: 860px; }
+  .lead { margin-top: 14px; font-size: 17px; color: var(--muted); max-width: 740px; }
+  .lead strong { color: var(--ink); }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+
+  /* Subdomain Ecosystem Bar */
+  .eco-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+    gap: 12px; margin: 28px 0 42px;
+  }
+  .eco-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; text-decoration: none; color: var(--ink); transition: 0.18s;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .eco-card:hover { border-color: var(--cyan); transform: translateY(-2px); }
+  .eco-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .eco-host { font-size: 13px; font-weight: 600; color: var(--cyan); }
+  .eco-desc { font-size: 12px; color: var(--muted); }
+
+  /* Interactive Simulator */
+  .section-head { margin-bottom: 18px; }
+  .section-kicker { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cyan); }
+  .section-title { font-size: 26px; font-weight: 700; margin-top: 4px; }
+  .sim-wrap {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+    padding: 22px; margin-bottom: 48px; box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+  }
+  .sim-top {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+    gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+  }
+  .sim-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .rec-btn {
+    background: #dc2626; color: #fff; border: none; padding: 11px 20px;
+    border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .rec-btn.active { background: #f59e0b; color: #020617; }
+  .stage-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .stage-pill {
+    font-size: 11px; padding: 5px 10px; border-radius: 7px;
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
+  }
+  .stage-pill.on { border-color: var(--emerald); color: var(--emerald); background: rgba(52,211,153,0.1); }
+
+  .sim-grid {
+    display: grid; grid-template-columns: 1fr 1.15fr; gap: 18px; margin-top: 18px;
+  }
+  @media (max-width: 860px) { .sim-grid { grid-template-columns: 1fr; } }
+  .box {
+    background: rgba(5,9,18,0.65); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px;
+  }
+  .box-title {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); margin-bottom: 12px; display: flex; justify-content: space-between;
+  }
+  .utterance {
+    padding: 9px 12px; border-radius: 8px; background: var(--panel);
+    border: 1px solid var(--border); margin-bottom: 8px; font-size: 14px;
+    opacity: 0.3; transition: 0.25s;
+  }
+  .utterance.revealed { opacity: 1; border-color: rgba(34,211,238,0.4); }
+  .id-banner {
+    margin-top: 12px; padding: 10px 12px; border-radius: 9px;
+    background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.45);
+    font-size: 12.5px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  .tab {
+    padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 600;
+    background: var(--panel); border: 1px solid var(--border); color: var(--muted); cursor: pointer;
+  }
+  .tab.active { background: rgba(52,211,153,0.15); border-color: var(--emerald); color: var(--emerald); }
+  .summary-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; font-size: 13.5px; line-height: 1.65;
+  }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip {
+    font-size: 11.5px; padding: 4px 10px; border-radius: 999px;
+    background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.3);
+    color: var(--cyan); cursor: pointer;
+  }
+  .chip:hover { background: rgba(34,211,238,0.22); }
+
+  /* Architecture Embeds */
+  .arch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 48px; }
+  @media (max-width: 860px) { .arch-grid { grid-template-columns: 1fr; } }
+  .arch-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+    display: flex; flex-direction: column; justify-content: space-between; gap: 14px;
+  }
+  .arch-card h3 { font-size: 18px; font-weight: 700; }
+  .arch-card p { font-size: 13.5px; color: var(--muted); }
+  .arch-list { list-style: none; font-size: 12.5px; color: #cbd5e1; display: grid; gap: 6px; }
+
+  footer {
+    border-top: 1px solid var(--border); padding: 28px 0 40px;
+    font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="shell nav-row">
+    <a href="/" class="brand">
+      <span class="brand-dot"></span>
+      <span>HandClinic AI · מקליט ביקורים</span>
+    </a>
+    <div class="nav-links">
+      <a href="#simulator">Live Simulator</a>
+      <a href="#architecture">Voice Agent &amp; K8s</a>
+      <a href="/voice-agent.html" target="_blank">Voice Agent Archify ↗</a>
+      <a href="/deploy-backup.html" target="_blank">CI/CD Archify ↗</a>
+      <a href="https://app.handclinic.co.il" class="btn btn-primary">Open Live Clinic App ↗</a>
+    </div>
+  </div>
+</nav>
+
+<main class="shell">
+  <section class="hero">
+    <div class="badge mono">● LIVE ON KUBERNETES · HANDCLINIC.CO.IL SAAS PLATFORM</div>
+    <h1>One button in the clinic.<br>Live Hebrew transcription, auto patient ID &amp; clinical summary.</h1>
+    <p class="lead">
+      The doctor presses <strong>🎙 התחלת ביקור</strong> when the patient sits down. The voice agent streams 16 kHz audio through <strong>Silero VAD</strong> and <strong>ElevenLabs Scribe v2 Realtime</strong>, recognizes the patient's name and Israeli ID automatically, and generates both the <strong>doctor's clinical file (`סיכום קליני`)</strong> and a <strong>warm plain-language letter for the patient</strong>.
+    </p>
+    <div class="hero-actions">
+      <a href="#simulator" class="btn btn-primary">▶ Try Interactive Visit Simulator</a>
+      <a href="/voice-agent.html" target="_blank" class="btn btn-ghost mono">Interactive Voice Agent Graph (Archify) ↗</a>
+      <a href="/deploy-backup.html" target="_blank" class="btn btn-ghost mono">CI/CD &amp; Backup Graph (Archify) ↗</a>
+    </div>
+
+    <!-- Subdomain Ecosystem -->
+    <div class="eco-grid">
+      <a href="https://app.handclinic.co.il" target="_blank" class="eco-card">
+        <span class="eco-tag mono" style="color:var(--emerald)">● PRODUCTION APP</span>
+        <span class="eco-host mono">app.handclinic.co.il</span>
+        <span class="eco-desc">Live clinic recorder (`meeting-recorder-prod` · K8s :30085)</span>
+      </a>
+      <a href="https://test.handclinic.co.il" target="_blank" class="eco-card">
+        <span class="eco-tag mono" style="color:var(--amber)">● STAGING + AUTO VOICE QA</span>
+        <span class="eco-host mono">test.handclinic.co.il</span>
+        <span class="eco-desc">Test environment verified by synthetic Hebrew voice QA (:30084)</span>
+      </a>
+      <a href="https://beta.handclinic.co.il" target="_blank" class="eco-card">
+        <span class="eco-tag mono" style="color:var(--violet)">● WHATSAPP BETA</span>
+        <span class="eco-host mono">beta.handclinic.co.il</span>
+        <span class="eco-desc">WhatsApp &amp; patient delivery branch (`whatsapp` · :30089)</span>
+      </a>
+      <a href="https://yaffa-david.handclinic.co.il" target="_blank" class="eco-card">
+        <span class="eco-tag mono" style="color:var(--cyan)">● CLINIC WEBSITE</span>
+        <span class="eco-host mono">yaffa-david.handclinic.co.il</span>
+        <span class="eco-desc">Dr. Yaffa David — Hand Surgery Clinic Tel Aviv (:30094)</span>
+      </a>
+      <a href="https://arch.handclinic.co.il" target="_blank" class="eco-card">
+        <span class="eco-tag mono" style="color:var(--rose)">● INTERACTIVE ARCHITECTURE</span>
+        <span class="eco-host mono">arch.handclinic.co.il</span>
+        <span class="eco-desc">Source-backed Archify map of the Voice Agent &amp; K8s cluster</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Interactive Clinic Visit Simulator -->
+  <section id="simulator">
+    <div class="section-head">
+      <div class="section-kicker mono">INTERACTIVE DEMO · SEE WHAT HAPPENS WHEN THE DOCTOR HITS RECORD</div>
+      <h2 class="section-title">Simulate a Real Hand-Clinic Visit (דוד לוי · Trigger Finger)</h2>
+    </div>
+
+    <div class="sim-wrap">
+      <div class="sim-top">
+        <div class="sim-controls">
+          <button id="simBtn" class="rec-btn" onclick="runSim()">🎙 התחלת ביקור · Start Simulated Visit</button>
+          <span id="simTimer" class="mono" style="font-size:13px;color:var(--muted)">00:00 · Ready</span>
+        </div>
+        <div class="stage-pills mono">
+          <span id="st1" class="stage-pill">1. 16kHz PCM + Silero VAD</span>
+          <span id="st2" class="stage-pill">2. ElevenLabs Scribe v2</span>
+          <span id="st3" class="stage-pill">3. Auto Patient ID</span>
+          <span id="st4" class="stage-pill">4. GPT-5 Summary + A4 PDF</span>
+        </div>
+      </div>
+
+      <div class="sim-grid">
+        <!-- Left: Live Transcript + Identity -->
+        <div class="box">
+          <div class="box-title mono">
+            <span>LIVE WEBSOCKET TRANSCRIPT (/ws/transcribe)</span>
+            <span style="color:var(--emerald)">RAM-ONLY · ZERO AUDIO STORED</span>
+          </div>
+          <div class="utterance rtl" id="u1">
+            <strong>מטופל:</strong> "שלום דוקטור, שמי דוד לוי, תעודת זהות 031849201, קופת חולים מכבי. האצבע האמצעית ביד ימין נתקעת לי בבוקר וכואבת."
+          </div>
+          <div class="utterance rtl" id="u2">
+            <strong>רופא:</strong> "בבדיקה רגישות מעל פולי A1 באצבע 3 יד ימין עם קליק אופייני לאצבע הדק — Trigger Finger. נבצע הזרקת דפו-מדרול 40 מ״ג עם לידוקאין."
+          </div>
+          <div class="utterance rtl" id="u3">
+            <strong>רופא:</strong> "הוזרק לתעלת הגיד באצבע 3 ימין. מנוחה ליד יומיים, קומפרסים קרים במידת הצורך, ביקורת בעוד שלושה שבועות."
+          </div>
+
+          <div class="id-banner mono" id="idBanner">
+            <div>
+              <strong style="color:var(--ink)">🪪 Patient Auto-Linked:</strong>
+              <span>דוד לוי · ת״ז 031849201 (✓ Check-digit valid) · מכבי · זכר</span>
+            </div>
+            <span style="color:var(--emerald);font-weight:600">98% Match</span>
+          </div>
+        </div>
+
+        <!-- Right: Output Tabs -->
+        <div class="box">
+          <div class="tabs">
+            <button class="tab active" id="t-doc" onclick="showTab('doc')">סיכום קליני · Doctor File</button>
+            <button class="tab" id="t-pat" onclick="showTab('pat')">מכתב למטופל · Patient Letter</button>
+            <button class="tab" id="t-pdf" onclick="showTab('pdf')">🖨 A4 PDF + Stamp</button>
+          </div>
+
+          <div id="pane-doc" class="summary-card rtl">
+            <div style="font-size:12px;color:var(--cyan);margin-bottom:6px">תיק רפואי · נשמר אוטומטית (המונחים בשפת הרופא)</div>
+            <p id="docText"><strong>תלונות וממצאים:</strong> כאב והיתקעות של אצבע 3 יד ימין בבוקר. רגישות מעל פולי A1 עם קליק אופייני.<br>
+            <strong>אבחנה:</strong> Trigger Finger (Stenosing Tenosynovitis) — Right Middle Finger (D3).<br>
+            <strong>טיפול שבוצע במרפאה:</strong> הזרקה (Injection) — אתר: פולי A1 אצבע 3 ימין · חומר: Depo-Medrol 40mg + Lidocaine 1%.</p>
+            <div class="chip-row" dir="rtl">
+              <span class="chip" onclick="appendPhrase(' הוסבר למטופל על תופעות לוואי אפשריות וסימני זיהום.')">+ משפט: הסבר סימני זיהום</span>
+              <span class="chip" onclick="appendPhrase(' מומלץ להימנע ממאמץ חוזרני של כף היד ב-48 השעות הקרובות.')">+ משפט: מנוחה 48 שעות</span>
+              <span class="chip" onclick="appendPhrase(' במידה ואין הטבה תוך 4 שבועות, נשקול שחרור כירורגי של פולי A1.')">+ משפט: שקילת שחרור כירורגי</span>
+            </div>
+          </div>
+
+          <div id="pane-pat" class="summary-card rtl" style="display:none">
+            <div style="font-size:12px;color:var(--emerald);margin-bottom:6px">מכתב בשפה פשוטה למטופל · מוכן להדפסה או שליחה במייל</div>
+            <p><strong>שלום דוד,</strong><br>
+            בביקור היום אובחנה אצלך תופעה שנקראת "אצבע הדק" (Trigger Finger) באצבע האמצעית ביד ימין — מצב שבו הגיד מתקשה להחליק בחופשיות.<br>
+            <strong>פעולות והסבר:</strong> ביצענו היום זריקה מקומית (דפו-מדרול ולידוקאין) שמטרתה להפחית את הדלקת ולשחרר את התנועה.<br>
+            <strong>מה לעשות בבית:</strong> לתת ליד מנוחה ביומיים הקרובים, לקרר מקומית אם יש אי-נוחות, ולחזור לביקורת בעוד 3 שבועות.</p>
+          </div>
+
+          <div id="pane-pdf" class="summary-card rtl" style="display:none;background:#f8fafc;color:#0f172a">
+            <div style="display:flex;justify-content:space-between;border-bottom:2px solid #0f172a;padding-bottom:8px;margin-bottom:10px">
+              <div>
+                <strong>ד״ר יפה דויד · מרפאת כירורגית יד</strong><br>
+                <span style="font-size:11.5px;color:#475569">ארלוזורוב 111, תל אביב · 03-5117142</span>
+              </div>
+              <div style="text-align:left;font-size:11.5px;color:#475569">
+                תאריך: 20/10/2026<br>מטופל: דוד לוי (031849201)
+              </div>
+            </div>
+            <p style="font-size:13px"><strong>סיכום ביקור ומסקנות:</strong> אצבע הדק אצבע 3 ימין. בוצעה הזרקת Depo-Medrol 40mg + Lidocaine. מנוחה יומיים, ביקורת בעוד 3 שבועות.</p>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:11px;border:1px dashed #0f172a;padding:3px 8px;border-radius:4px">חותמת רופא · ד״ר יפה דויד · מ.ר. 28491</span>
+              <span style="font-size:11px;color:#0284c7">/visits/41/pdf · Chromium A4</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture & CI/CD Cards -->
+  <section id="architecture">
+    <div class="section-head">
+      <div class="section-kicker mono">SOURCE-BACKED ARCHITECTURE · ARCHIFY SHOWCASE</div>
+      <h2 class="section-title">How the Voice Agent &amp; Kubernetes CI/CD Pipeline Work</h2>
+    </div>
+
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div>
+          <div class="mono" style="font-size:11px;color:var(--cyan);margin-bottom:6px">DIAGRAM 01 · VOICE AGENT PIPELINE</div>
+          <h3>From Microphone to Clinical Summary &amp; PDF</h3>
+          <p style="margin:8px 0 14px">Every node is linked directly to the Python &amp; JS source files in <code>ShimonNavon/meeting-recorder-</code>.</p>
+          <ul class="arch-list mono">
+            <li>• #1 AudioWorklet (16 kHz PCM) → WebSocket</li>
+            <li>• #2 Silero VAD splits speech on 700ms pauses</li>
+            <li>• #3 ElevenLabs Scribe v2 Realtime (~0.5s Hebrew+EN)</li>
+            <li>• #4 Spoken ID check-digit &amp; name matcher (zero LLM PII)</li>
+            <li>• #5 GPT-5 Clinical Summary + Plain-Language Patient Letter</li>
+          </ul>
+        </div>
+        <div>
+          <a href="/voice-agent.html" target="_blank" class="btn btn-primary">Open Interactive Voice Agent Archify ↗</a>
+        </div>
+      </div>
+
+      <div class="arch-card">
+        <div>
+          <div class="mono" style="font-size:11px;color:var(--emerald);margin-bottom:6px">DIAGRAM 02 · KUBERNETES CI/CD &amp; AUTO VOICE QA</div>
+          <h3>GitHub → Self-Hosted Runner → K8s → Synthetic Voice QA</h3>
+          <p style="margin:8px 0 14px">Every push runs automated tests, rolls out to Kubernetes (`ubuntu03`/`ubuntu04`), and streams a fake Hebrew visit to verify the live site.</p>
+          <ul class="arch-list mono">
+            <li>• GitHub Actions (`main`, `test`, `whatsapp` + `handclinic.co.il`)</li>
+            <li>• Builder on `ubuntu02` → Private Registry on `ubuntu04:5000`</li>
+            <li>• `scripts/qa_visit.py` streams דוד לוי audio &amp; auto-rolls back on miss</li>
+            <li>• Nightly 03:00 `pg_dump` backup to `ubuntu02` + `aws_01` over Tailscale</li>
+          </ul>
+        </div>
+        <div>
+          <a href="/deploy-backup.html" target="_blank" class="btn btn-ghost">Open Interactive CI/CD Archify ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>HandClinic AI · מקליט ביקורים · Running on Kubernetes (`medscribe-saas` · NodePort 30095)</span>
+    <span class="mono">GitHub: ShimonNavon/medscribe-saas · Domain: handclinic.co.il</span>
+  </footer>
+</main>
+
+<script>
+  let simRunning = false;
+  function showTab(which) {
+    ['doc','pat','pdf'].forEach(k => {
+      document.getElementById('pane-' + k).style.display = (k === which) ? 'block' : 'none';
+      document.getElementById('t-' + k).classList.toggle('active', k === which);
+    });
+  }
+  function appendPhrase(text) {
+    const el = document.getElementById('docText');
+    el.innerHTML += '<br><span style="color:#22d3ee">✔ ' + text.trim() + '</span>';
+  }
+  function runSim() {
+    if (simRunning) return;
+    simRunning = true;
+    const btn = document.getElementById('simBtn');
+    const timer = document.getElementById('simTimer');
+    btn.classList.add('active');
+    btn.textContent = '⏺ מקליט ביקור חי... Recording';
+    ['u1','u2','u3'].forEach(id => document.getElementById(id).classList.remove('revealed'));
+    ['st1','st2','st3','st4'].forEach(id => document.getElementById(id).classList.remove('on'));
+
+    document.getElementById('st1').classList.add('on');
+    timer.textContent = '00:01 · 16kHz PCM → Silero VAD';
+
+    setTimeout(() => {
+      document.getElementById('st2').classList.add('on');
+      document.getElementById('u1').classList.add('revealed');
+      timer.textContent = '00:03 · ElevenLabs Scribe v2 (he,en)';
+    }, 700);
+
+    setTimeout(() => {
+      document.getElementById('st3').classList.add('on');
+      document.getElementById('u2').classList.add('revealed');
+      timer.textContent = '00:05 · Patient ID 031849201 Verified';
+    }, 1500);
+
+    setTimeout(() => {
+      document.getElementById('u3').classList.add('revealed');
+      document.getElementById('st4').classList.add('on');
+      timer.textContent = '00:07 · Summary & A4 PDF Ready (~0.5s)';
+      btn.classList.remove('active');
+      btn.textContent = '↻ הפעל הדמיה שוב · Replay Visit';
+      simRunning = false;
+    }, 2400);
+  }
+  // Reveal all by default on load so first impression is rich
+  window.addEventListener('DOMContentLoaded', () => {
+    ['u1','u2','u3'].forEach(id => document.getElementById(id).classList.add('revealed'));
+    ['st1','st2','st3','st4'].forEach(id => document.getElementById(id).classList.add('on'));
+  });
+</script>
+</body>
+</html>
